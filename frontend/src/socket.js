@@ -1,7 +1,7 @@
 // socket.js
 import { io } from "socket.io-client";
 
-export const socket = io("http://localhost:4000", {
+export const socket = io("https://bts-services-gcq5.onrender.com", {
   autoConnect: false,
   transports: ["websocket"],
 });
