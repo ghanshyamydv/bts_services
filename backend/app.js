@@ -79,6 +79,9 @@ io.on("connection", (socket)=>{
 })
 
 //---------------------------------------------
+app.get("/", (req,res)=>{
+  res.redirect("/api/login");
+}
 app.post("/api/signup", wrapAsync(
   async (req, res, next) =>{  
       // Check if email already exists
