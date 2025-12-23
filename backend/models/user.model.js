@@ -1,0 +1,105 @@
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+
+const userSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email address']
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 6
+    },
+    category: {
+        type: String,
+        required: true,
+        enum: ['Customer', 'Restaurant Partner', 'Delivery Partner']
+    },
+    mobile: {
+        type: Number,
+      },
+      gender:String,
+      fullName:String,
+      address:String,
+      profileImage: {
+        url:{
+            type:String,
+            default:"https://res.cloudinary.com/dnf1e727o/image/upload/v1741369375/profile-pic_i0o1zm.png",
+        },
+        fileName:{
+            type:String
+        }
+      }, 
+    location: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      default: "Point",
+    },
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      required: function () {
+        return this.category === "Restaurant Partner";
+      },
+    },
+  },
+    address: {
+        type: String,
+        required: function () {
+        return this.category === "Restaurant Partner";
+      },
+    },
+    aboutMe:{
+        type:String,
+        required: function () {
+        return this.category === "Restaurant Partner";
+      },
+    },
+    status:{
+        type: String,
+        enum: ["Open", "Closed"],
+        default: "Open",
+    }
+    
+}, { timestamps: true });
+
+// Hash password before saving user
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Hash password before updating user with findOneAndUpdate
+userSchema.pre("findOneAndUpdate", async function (next) {
+    const update = this.getUpdate();
+    if (update.password) {
+        try {
+            const salt = await bcrypt.genSalt(10);
+            update.password = await bcrypt.hash(update.password, salt);
+            next();
+        } catch (err) {
+            next(err);
+        }
+    } else {
+        next();
+    }
+});
+
+// // Method to compare passwords
+// userSchema.methods.comparePassword = async function (enteredPassword) {
+//     return bcrypt.compare(enteredPassword, this.password);
+// };
+
+const User = mongoose.model("User", userSchema);
+export default User;
