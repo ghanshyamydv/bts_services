@@ -81,7 +81,8 @@ io.on("connection", (socket)=>{
 //---------------------------------------------
 app.get("/", (req,res)=>{
   res.send("Welcome to BTS Services");
-}
+});
+
 app.post("/api/signup", wrapAsync(
   async (req, res, next) =>{  
       // Check if email already exists
